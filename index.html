@@ -4,42 +4,61 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#007f73" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Dar Aldawa AI Marketing Plan Studio</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20260730-3" />
 </head>
 <body>
   <noscript>This application requires JavaScript.</noscript>
   <div id="app"><div style="font-family:Arial;padding:40px;color:#075a54">Loading AI Marketing Plan Studio…</div></div>
 
-  <script src="vendor/pptxgen.bundle.js"></script>
+  <script src="vendor/pptxgen.bundle.js?v=20260730-3"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
-  <script src="payload/chunk00.js"></script>
-  <script src="payload/chunk01.js"></script>
-  <script src="payload/chunk02.js"></script>
-  <script src="payload/chunk03_04.js"></script>
-  <script src="payload/chunk05_06.js"></script>
-  <script src="payload/chunk07.js"></script>
   <script>
   (async()=>{
+    const app=document.getElementById('app');
+    const chunkFiles=[
+      'payload/chunk00.js',
+      'payload/chunk01.js',
+      'payload/chunk02.js',
+      'payload/chunk03_04.js',
+      'payload/chunk05_06.js',
+      'payload/chunk07.js'
+    ];
     try{
-      if (typeof JSZip === 'undefined') throw new Error('JSZip library failed to load. Please refresh the page.');
-      if (typeof XLSX === 'undefined') throw new Error('Excel library failed to load. Please refresh the page.');
-      const payload=window.__DAD_PAYLOAD||'';
-      if (!payload) throw new Error('Application payload is missing. Please refresh the page.');
+      if(typeof JSZip==='undefined') throw new Error('JSZip library failed to load. Please refresh the page.');
+
+      const texts=await Promise.all(chunkFiles.map(async path=>{
+        const response=await fetch(path+'?v=20260730-3',{cache:'no-store'});
+        if(!response.ok) throw new Error('Could not load '+path+' ('+response.status+').');
+        return response.text();
+      }));
+
+      const parts=[];
+      for(let i=0;i<texts.length;i++){
+        const matches=[...texts[i].matchAll(/\+\s*'([A-Za-z0-9+/=]+)'/g)];
+        if(!matches.length) throw new Error('Payload part could not be read from '+chunkFiles[i]+'.');
+        for(const match of matches) parts.push(match[1]);
+      }
+
+      const payload=parts.join('');
+      if(!payload) throw new Error('Application payload is missing.');
       const bytes=Uint8Array.from(atob(payload),c=>c.charCodeAt(0));
       const zip=await JSZip.loadAsync(bytes);
       const libraryFile=zip.file('plan-library.json');
       const appFile=zip.file('app.js');
-      if (!libraryFile || !appFile) throw new Error('Application bundle is incomplete.');
+      if(!libraryFile||!appFile) throw new Error('Application bundle is incomplete.');
+
       window.EMBEDDED_PLAN_LIBRARY=JSON.parse(await libraryFile.async('text'));
       const appCode=await appFile.async('text');
-      delete window.__DAD_PAYLOAD;
       (0,eval)(appCode+'\n//# sourceURL=marketing-plan-app.js');
     }catch(error){
       console.error(error);
-      document.getElementById('app').innerHTML='<div style="font-family:Arial;padding:40px;color:#8a2632"><h2>Application loading error</h2><p>'+String(error.message||error)+'</p><button onclick="location.reload()" style="margin-top:12px;padding:10px 16px;border:0;border-radius:8px;background:#008b7c;color:white;font-family:Arial;font-weight:bold;cursor:pointer">Refresh application</button></div>';
+      app.innerHTML='<div style="font-family:Arial;padding:40px;color:#8a2632"><h2>Application loading error</h2><p>'+String(error.message||error)+'</p><button onclick="location.href=location.pathname+\'?fixed=20260730-3\'" style="margin-top:12px;padding:10px 16px;border:0;border-radius:8px;background:#008b7c;color:white;font-family:Arial;font-weight:bold;cursor:pointer">Reload fixed version</button></div>';
     }
   })();
   </script>
