@@ -10,7 +10,11 @@
 <body>
   <noscript>This application requires JavaScript.</noscript>
   <div id="app"><div style="font-family:Arial;padding:40px;color:#075a54">Loading AI Marketing Plan Studio…</div></div>
+
   <script src="vendor/pptxgen.bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
   <script src="payload/chunk00.js"></script>
   <script src="payload/chunk01.js"></script>
   <script src="payload/chunk02.js"></script>
@@ -20,15 +24,22 @@
   <script>
   (async()=>{
     try{
-      const bytes=Uint8Array.from(atob(window.__DAD_PAYLOAD||''),c=>c.charCodeAt(0));
+      if (typeof JSZip === 'undefined') throw new Error('JSZip library failed to load. Please refresh the page.');
+      if (typeof XLSX === 'undefined') throw new Error('Excel library failed to load. Please refresh the page.');
+      const payload=window.__DAD_PAYLOAD||'';
+      if (!payload) throw new Error('Application payload is missing. Please refresh the page.');
+      const bytes=Uint8Array.from(atob(payload),c=>c.charCodeAt(0));
       const zip=await JSZip.loadAsync(bytes);
-      window.EMBEDDED_PLAN_LIBRARY=JSON.parse(await zip.file('plan-library.json').async('text'));
-      const appCode=await zip.file('app.js').async('text');
+      const libraryFile=zip.file('plan-library.json');
+      const appFile=zip.file('app.js');
+      if (!libraryFile || !appFile) throw new Error('Application bundle is incomplete.');
+      window.EMBEDDED_PLAN_LIBRARY=JSON.parse(await libraryFile.async('text'));
+      const appCode=await appFile.async('text');
       delete window.__DAD_PAYLOAD;
       (0,eval)(appCode+'\n//# sourceURL=marketing-plan-app.js');
     }catch(error){
       console.error(error);
-      document.getElementById('app').innerHTML='<div style="font-family:Arial;padding:40px;color:#8a2632"><h2>Application loading error</h2><p>'+String(error.message||error)+'</p></div>';
+      document.getElementById('app').innerHTML='<div style="font-family:Arial;padding:40px;color:#8a2632"><h2>Application loading error</h2><p>'+String(error.message||error)+'</p><button onclick="location.reload()" style="margin-top:12px;padding:10px 16px;border:0;border-radius:8px;background:#008b7c;color:white;font-family:Arial;font-weight:bold;cursor:pointer">Refresh application</button></div>';
     }
   })();
   </script>
