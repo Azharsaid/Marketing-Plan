@@ -3,17 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dar Aldawa Marketing Plan Builder</title>
+  <meta name="theme-color" content="#007f73" />
+  <title>Dar Aldawa AI Marketing Plan Studio</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <noscript>This tool needs JavaScript enabled.</noscript>
-  <div id="app"></div>
-  <script src="data/iqvia-data.js"></script>
+  <noscript>This application requires JavaScript.</noscript>
+  <div id="app"><div style="font-family:Arial;padding:40px;color:#075a54">Loading AI Marketing Plan Studio…</div></div>
   <script src="vendor/pptxgen.bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script type="module" src="app.js"></script>
+  <script src="payload/chunk00.js"></script>
+  <script src="payload/chunk01.js"></script>
+  <script src="payload/chunk02.js"></script>
+  <script src="payload/chunk03_04.js"></script>
+  <script src="payload/chunk05_06.js"></script>
+  <script src="payload/chunk07.js"></script>
+  <script>
+  (async()=>{
+    try{
+      const bytes=Uint8Array.from(atob(window.__DAD_PAYLOAD||''),c=>c.charCodeAt(0));
+      const zip=await JSZip.loadAsync(bytes);
+      window.EMBEDDED_PLAN_LIBRARY=JSON.parse(await zip.file('plan-library.json').async('text'));
+      const appCode=await zip.file('app.js').async('text');
+      delete window.__DAD_PAYLOAD;
+      (0,eval)(appCode+'\n//# sourceURL=marketing-plan-app.js');
+    }catch(error){
+      console.error(error);
+      document.getElementById('app').innerHTML='<div style="font-family:Arial;padding:40px;color:#8a2632"><h2>Application loading error</h2><p>'+String(error.message||error)+'</p></div>';
+    }
+  })();
+  </script>
 </body>
 </html>
